@@ -71,7 +71,9 @@ class Instance:
 
 
 def main():
-	print("gpu_server running")
+	for _ in range(5):
+		print("gpu_server running")
+		time.sleep(5)
 	# me = Instance(args.id, args.address)
 
 
