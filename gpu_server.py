@@ -71,7 +71,8 @@ class Instance:
 
 
 def main():
-	me = Instance(args.)
+	print("gpu_server running")
+	# me = Instance(args.id, args.address)
 
 
 
