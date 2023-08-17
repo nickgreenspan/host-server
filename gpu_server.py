@@ -76,6 +76,9 @@ def main():
 		time.sleep(5)
 	# me = Instance(args.id, args.address)
 
+if __name__ == "__main__":
+	main()
+
 
 
 
