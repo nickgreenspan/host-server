@@ -1,27 +1,18 @@
 from threading import Thread
 import subprocess
-import argparse
 import re
-import json
+import requests
 import time
+import os
 
 TIME_INTERVAL_SECONDS = 10
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--id', help='Instance ID of this GPU server')
-parser.add_argument('-a', '--address', help='Address of the serverless server')
-args = parser.parse_args()
-
-
 class Instance:
-	def __init__(self, id, address):
-		self.id = id
+	def __init__(self, token, address):
+		self.token = token
 		self.serverless_address = address
 		self.state = {"tps" : None, "state": "loading"} # "loading" || "ready" || "error"
 		self.changed = False
-
-		self.t = Thread(target=self.tick)
-		self.t.start()
 
 	def check_error(self):
 		pass
@@ -47,34 +38,32 @@ class Instance:
 					self.state["tps"] = tps
 					self.changed = True
 
+	def report_state(self):
+		URI = f'http://{self.serverless_address}/report'
+		request_dict = {"token": self.token, "state": self.state}
+		response = requests.post(URI, json=request_dict)
+		if response.status_code == 200:
+			print("[gpuserver] reported state to serverless server")
+		else:
+			print("[gpuserver] failed reporting state to serverless server")
 
-	def log_state(self):
-		with open("{self.id}_state.json", 'w') as file:
-			json.dump(self.state, file)
-
-	def send_state(self):
-		result = subprocess.run(["scp {self.id}_state.json {self.serverless_address}:instance_info/"])
-
-	def tick(self):
+	def start(self):
+		print(f"starting server, token:{self.token}, serv addr: {self.serverless_address}")
 		while True:
-			self.check_error()
 			if self.state["state"] == "loading":
 				self.check_ready()
 			if self.state["state"] == "ready":
 				self.update_metrics()
-			if self.changed:
-				self.log_state()
-				self.send_state()
+			# if self.changed:
+			# 	self.report_state()
+			# 	self.changed = False
 			time.sleep(TIME_INTERVAL_SECONDS)
 
-
-
-
 def main():
-	for _ in range(5):
-		print("gpu_server running")
-		time.sleep(5)
-	# me = Instance(args.id, args.address)
+	token = os.environ.get("TOKEN")
+	addr = os.environ.get("SERVERLESS_ADDR")
+	me = Instance(token, addr)
+	me.start()
 
 if __name__ == "__main__":
 	main()
