@@ -13,7 +13,7 @@ curr_tokens = set()
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
     global mtoken, curr_tokens
-    if request.json['token'] != mtoken:
+    if request.json['mtoken'] != mtoken:
         abort(401)
     new_tokens = gen_tokens()
     curr_tokens |= set(new_tokens)
