@@ -32,10 +32,12 @@ def auth():
     token = request.data['token']
     if token in curr_tokens:
         curr_tokens.remove(token)
+    else:
+        abort(401)
 
     URI = f'http://{OOBA_SERVER}/api/v1/generate'
     response = requests.post(URI, json=request.data['ooba'])
     return response.json()
 
 if __name__ == '__main__':
-    app.run(threaded=False, port=5000)
+    app.run(host='0.0.0.0', port=5000, threaded=False)
