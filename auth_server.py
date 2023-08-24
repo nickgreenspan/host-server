@@ -37,8 +37,6 @@ def auth():
 
     URI = f'http://{OOBA_SERVER}/api/v1/generate'
     response = requests.post(URI, json=request.json['ooba'])
-    print("ooba response")
-    print(response)
     return response.json()
 
 if __name__ == '__main__':
