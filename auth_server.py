@@ -13,7 +13,7 @@ curr_tokens = set()
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
     global mtoken, curr_tokens
-    if request.data['token'] != mtoken:
+    if request.json['token'] != mtoken:
         abort(401)
     new_tokens = gen_tokens()
     curr_tokens |= set(new_tokens)
@@ -28,15 +28,15 @@ def gen_tokens():
 
 @app.route('/auth', methods=['POST'])
 def auth():
-    global curr_tokens
-    token = request.data['token']
+    global mtoken, curr_tokens
+    token = request.json['token']
     if token in curr_tokens:
         curr_tokens.remove(token)
-    else:
+    elif token != mtoken:
         abort(401)
 
     URI = f'http://{OOBA_SERVER}/api/v1/generate'
-    response = requests.post(URI, json=request.data['ooba'])
+    response = requests.post(URI, json=request.json['ooba'])
     print("ooba response")
     print(response)
     return response.json()
