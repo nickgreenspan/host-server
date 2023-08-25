@@ -2,12 +2,13 @@ from flask import Flask, request, abort
 import os
 import secrets
 import requests
+import time
 
 app = Flask(__name__)
 
 mtoken = os.environ['MTOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
-BATCH_SIZE = 20
+BATCH_SIZE = 1000
 curr_tokens = set()
 
 @app.route('/tokens', methods=['GET'])
@@ -15,7 +16,10 @@ def get_tokens():
     global mtoken, curr_tokens
     if request.json['mtoken'] != mtoken:
         abort(401)
+    t1 = time.time()
     new_tokens = gen_tokens()
+    t2 = time.time()
+    print(f"generated tokens in {t2 - t1}")
     curr_tokens |= set(new_tokens)
     return {"tokens" : new_tokens}
 
