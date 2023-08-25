@@ -11,6 +11,8 @@ prompts = [
 model_dir = "/src/models/TheBloke_Llama-2-13B-chat-GPTQ_gptq-4bit-32g-actorder_True"
 model = ExllamaModel(model_dir, batch_size=4)
 
+model.generate(prompts)
+
 
 
 
