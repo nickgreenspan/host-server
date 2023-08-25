@@ -16,7 +16,7 @@ class ExllamaModel:
         config.model_path = model_path
         model = ExLlama(config)
         tokenizer = ExLlamaTokenizer(tokenizer_path)
-        cache = ExLlamaCache(self.model, batch_size = batch_size)
+        cache = ExLlamaCache(model, batch_size = batch_size)
 
         self.generator = ExLlamaGenerator(model, tokenizer, cache)
         self.configure_generator(self.generator)
