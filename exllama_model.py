@@ -15,10 +15,10 @@ class ExllamaModel:
         config = ExLlamaConfig(model_config_path)
         config.model_path = model_path
         model = ExLlama(config)
-        tokenizer = ExLlamaTokenizer(tokenizer_path)
+        self.tokenizer = ExLlamaTokenizer(tokenizer_path)
         cache = ExLlamaCache(model, batch_size = batch_size)
 
-        self.generator = ExLlamaGenerator(model, tokenizer, cache)
+        self.generator = ExLlamaGenerator(model, self.tokenizer, cache)
         self.configure_generator(self.generator)
 
         self.max_new_tokens = 200
