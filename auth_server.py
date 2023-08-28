@@ -19,7 +19,6 @@ def get_tokens():
     t1 = time.time()
     new_tokens = gen_tokens()
     t2 = time.time()
-    print(f"generated tokens in {t2 - t1}")
     curr_tokens |= set(new_tokens)
     return {"tokens" : new_tokens}
 
@@ -39,9 +38,9 @@ def auth():
     elif token != mtoken:
         abort(401)
 
-    URI = f'http://{OOBA_SERVER}/api/v1/generate'
-    response = requests.post(URI, json=request.json['ooba'])
+    URI = f'http://{OOBA_SERVER}/generate'
+    response = requests.post(URI, json=request.json['model'])
     return response.json()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, threaded=False)
+    app.run(host='0.0.0.0', port=5000, threaded=True)
