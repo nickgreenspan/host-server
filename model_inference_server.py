@@ -25,7 +25,7 @@ engine_thread.start()
 def generate():
     global engine
     prompt = request.json['prompt']
-    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1)
+    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1, max_tokens=50)
     event = Event()
     ret_list = []
     engine.prompt_queue.put((prompt, params, event, ret_list))
