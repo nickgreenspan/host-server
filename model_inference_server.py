@@ -1,8 +1,9 @@
 from flask import Flask, request
-from vllm import EngineArgs, SamplingParams
+from vllm import EngineArgs, SamplingParams, ParallelConfig
 from vllm_engine import VLLMEngine
 from threading import Thread, Event
 import logging
+import os
 
 TIMEOUT = 100
 
@@ -14,9 +15,9 @@ log.setLevel(logging.ERROR)
 model_path = "/src/models/meta-llama_Llama-2-13b-hf"
 tokenizer = "hf-internal-testing/llama-tokenizer"
 
-engine = None
+num_gpus = os.environ["NUM_GPUS"]
 
-engine_args = EngineArgs(model=model_path, tokenizer=tokenizer)
+engine_args = EngineArgs(model=model_path, tokenizer=tokenizer, tensor_parallel_size=num_gpus)
 engine = VLLMEngine(engine_args=engine_args)
 engine_thread = Thread(target=engine.run)
 engine_thread.start()

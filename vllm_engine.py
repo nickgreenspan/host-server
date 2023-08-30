@@ -1,6 +1,5 @@
 import time
 from queue import Queue
-
 from vllm import LLMEngine
 
 class VLLMEngine:
