@@ -12,7 +12,7 @@ app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-num_gpus = os.environ["NUM_GPUS"]
+num_gpus = int(os.environ["NUM_GPUS"])
 model_path = os.environ["MODEL_PATH"]
 
 engine_args = EngineArgs(model=model_path, tensor_parallel_size=num_gpus)
