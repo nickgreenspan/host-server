@@ -12,12 +12,10 @@ app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-model_path = "/src/models/meta-llama_Llama-2-13b-hf"
-tokenizer = "hf-internal-testing/llama-tokenizer"
-
 num_gpus = os.environ["NUM_GPUS"]
+model_path = os.environ["MODEL_PATH"]
 
-engine_args = EngineArgs(model=model_path, tokenizer=tokenizer, tensor_parallel_size=num_gpus)
+engine_args = EngineArgs(model=model_path, tensor_parallel_size=num_gpus)
 engine = VLLMEngine(engine_args=engine_args)
 engine_thread = Thread(target=engine.run)
 engine_thread.start()
