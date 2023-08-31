@@ -13,6 +13,7 @@ mtoken = os.environ['MASTER_TOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
 BATCH_SIZE = 1000
 curr_tokens = set()
+print(mtoken)
 
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
