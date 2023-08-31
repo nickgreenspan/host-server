@@ -2,13 +2,12 @@ from flask import Flask, request, abort
 import os
 import secrets
 import requests
-import time
 import logging
 
 app = Flask(__name__)
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 mtoken = os.environ['MASTER_TOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
@@ -20,9 +19,7 @@ def get_tokens():
     global mtoken, curr_tokens
     if request.json['mtoken'] != mtoken:
         abort(401)
-    t1 = time.time()
     new_tokens = gen_tokens()
-    t2 = time.time()
     curr_tokens |= set(new_tokens)
     return {"tokens" : new_tokens}
 
