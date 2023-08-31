@@ -1,5 +1,5 @@
 from flask import Flask, request
-from vllm import EngineArgs, SamplingParams, ParallelConfig
+from vllm import EngineArgs, SamplingParams
 from vllm_engine import VLLMEngine
 from threading import Thread, Event
 import logging
