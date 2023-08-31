@@ -34,6 +34,7 @@ def gen_tokens():
 def auth():
     global mtoken, curr_tokens
     token = request.json['token']
+    print(token)
     if token in curr_tokens:
         curr_tokens.remove(token)
     elif token != mtoken:
