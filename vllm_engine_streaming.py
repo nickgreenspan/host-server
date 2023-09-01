@@ -20,16 +20,15 @@ class StreamingVLLMEngine:
             for req_output in request_outputs:
                 id = req_output.request_id
                 msg_queue, txt_len, event = self.req_map[id]
-                txt_output = req_output.outputs[-1]
-                if req_output.finished:
-                    event.set()
+                txt_output = req_output.outputs[-1].text
                 if len(txt_output) > txt_len:
                     msg_queue.put(txt_output[txt_len:])
                     txt_len = len(txt_output)
                 if req_output.finished:
                     del self.req_map[id]
+                    event.set()
                 else:
-                    self.req_map[id] = (msg_queue, txt_len)
+                    self.req_map[id] = (msg_queue, txt_len, event)
 
 
 

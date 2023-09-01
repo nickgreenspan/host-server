@@ -9,8 +9,8 @@ TIMEOUT = 100
 
 app = Flask(__name__)
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 num_gpus = int(os.environ["NUM_GPUS"])
 model_path = os.environ["MODEL_PATH"]

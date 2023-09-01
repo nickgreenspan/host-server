@@ -6,8 +6,8 @@ import logging
 
 app = Flask(__name__)
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 mtoken = os.environ['MASTER_TOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
