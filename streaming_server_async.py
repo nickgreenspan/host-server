@@ -1,13 +1,17 @@
 import os
-from vllm import AsyncLLMEngine, EngineArgs, SamplingParams
+import asyncio
+import websockets
+import threading
+from vllm import AsyncLLMEngine, AsyncEngineArgs, SamplingParams
 import uuid
 
 prompt_end  = '?'
 
 num_gpus = int(os.environ["NUM_GPUS"])
 model_path = os.environ["MODEL_PATH"]
-engine_args = EngineArgs(model=model_path, tensor_parallel_size=num_gpus)
-engine = AsyncLLMEngine(engine_args=engine_args)
+
+engine_args = AsyncEngineArgs(model=model_path, tensor_parallel_size=num_gpus, worker_use_ray=True, engine_use_ray=True, disable_log_requests=True)
+engine = AsyncLLMEngine.from_engine_args(engine_args=engine_args)
 
 async def generate(websocket):
     prompt = ""
@@ -23,3 +27,9 @@ async def generate(websocket):
         txt = result.outputs[-1].text
         await websocket.send(txt[txt_len:])
         txt_len = len(txt)
+
+async def main():
+    async with websockets.serve(generate, '0.0.0.0', 5000):
+        await asyncio.Future()  # run forever
+
+asyncio.run(main())
