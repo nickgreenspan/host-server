@@ -35,7 +35,7 @@ async def generate(websocket):
             await websocket.send(msg_queue.get())
 
 async def main():
-    async with websockets.serve(generate, '0.0.0.0', 5000):
+    async with websockets.serve(generate, '127.0.0.1', 5001):
         await asyncio.Future()  # run forever
 
 asyncio.run(main())

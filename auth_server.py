@@ -13,7 +13,6 @@ mtoken = os.environ['MASTER_TOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
 BATCH_SIZE = 1000
 curr_tokens = set()
-print(mtoken)
 
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
@@ -35,7 +34,6 @@ def gen_tokens():
 def auth():
     global mtoken, curr_tokens
     token = request.json['token']
-    print(token)
     if token in curr_tokens:
         curr_tokens.remove(token)
     elif token != mtoken:
