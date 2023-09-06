@@ -53,7 +53,8 @@ async def generate(websocket):
             await websocket.send(msg_queue.get())
 
 async def serve_model():
-    async with websockets.serve(generate, '127.0.0.1', 5001):
+    print("starting server")
+    async with websockets.serve(generate, '0.0.0.0', 5005):
         await asyncio.Future()  # run forever
 
 async def get_tokens(token_queue, token_event):
@@ -65,9 +66,8 @@ async def get_tokens(token_queue, token_event):
         token_event.clear()
 
 async def main(token_queue, token_event):
-    async with asyncio.TaskGroup() as tg:
-        task1 = tg.create_task(serve_model())
-        tast2 = tg.create_task(get_tokens(token_queue, token_event))
+    task1 = asyncio.create_task(serve_model())
+    tast2 = asyncio.create_task(get_tokens(token_queue, token_event))
 
 def check_queue(token_queue, token_event):
     if not(token_event.is_set()) and not(token_queue.empty()):
@@ -75,8 +75,8 @@ def check_queue(token_queue, token_event):
     time.sleep(CHECK_QUEUE_SLEEP)
 
 def start_server(token_queue):
-    token_event = asyncio.event()
-    queue_check_thread = Thread(target=check_queue, args=(token_queue, token_event))
+    token_event = asyncio.Event()
+    queue_check_thread = Thread(target=check_queue, args=(token_queue, token_event,))
     queue_check_thread.start()
 
     asyncio.run(main(token_queue, token_event))

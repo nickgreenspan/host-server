@@ -17,7 +17,7 @@ OOBA_SERVER = '127.0.0.1:5001'
 BATCH_SIZE = 1000
 
 token_queue = multiprocessing.Queue()
-model_process = multiprocessing.Process(target=start_server, args=(token_queue))
+model_process = multiprocessing.Process(target=start_server, args=(token_queue,))
 model_process.start()
 
 @app.route('/tokens', methods=['GET'])
