@@ -4,6 +4,7 @@ from vllm import EngineArgs, SamplingParams
 from threading import Thread, Event
 from queue import Queue
 import os
+import time
 
 from vllm_engine_streaming import StreamingVLLMEngine
 
@@ -15,19 +16,31 @@ engine = StreamingVLLMEngine(engine_args=engine_args)
 engine_thread = Thread(target=engine.run)
 engine_thread.start()
 
-prompt_end  = '?'
+msg_end = "$$$"
 
-async def update_tokens():
-    async with aiofiles.open('filename', mode='r') as f:
-        contents = await f.read()
+mtoken = os.environ['MASTER_TOKEN']
+tokens = set()
 
+CHECK_QUEUE_SLEEP = 10
 
 async def generate(websocket):
+    token = ""
+    async for message in websocket:
+        if msg_end in message:
+            break
+        token += message
+
+    if (token in tokens):
+        tokens.remove(token)
+    elif token != mtoken:
+        await websocket.close()
+        return
+
     prompt = ""
     async for message in websocket:
-        prompt += message
-        if prompt_end in message:
+        if msg_end in message:
             break
+        prompt += message
 
     msg_queue = Queue()
     event = Event()
@@ -39,13 +52,32 @@ async def generate(websocket):
         while not(msg_queue.empty()):
             await websocket.send(msg_queue.get())
 
-async def model_main():
+async def serve_model():
     async with websockets.serve(generate, '127.0.0.1', 5001):
         await asyncio.Future()  # run forever
 
-async def tokens_main(queue):
+async def get_tokens(token_queue, token_event):
+    while True:
+        await token_event.wait()
+        while not(token_queue.empty()):
+            tokens.add(token_queue.get())
 
-    await update_tokens(queue)
+        token_event.clear()
 
-def start_server():
-    asyncio.run(model_main())
+async def main(token_queue, token_event):
+    async with asyncio.TaskGroup() as tg:
+        task1 = tg.create_task(serve_model())
+        tast2 = tg.create_task(get_tokens(token_queue, token_event))
+
+def check_queue(token_queue, token_event):
+    if not(token_event.is_set()) and not(token_queue.empty()):
+        token_event.set()
+    time.sleep(CHECK_QUEUE_SLEEP)
+
+def start_server(token_queue):
+    token_event = asyncio.event()
+    queue_check_thread = Thread(target=check_queue, args=(token_queue, token_event))
+    queue_check_thread.start()
+
+    asyncio.run(main(token_queue, token_event))
+
