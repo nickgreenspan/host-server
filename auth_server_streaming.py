@@ -9,11 +9,10 @@ from streaming_server_auth import start_server
 
 app = Flask(__name__)
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 mtoken = os.environ['MASTER_TOKEN']
-OOBA_SERVER = '127.0.0.1:5001'
 BATCH_SIZE = 1000
 
 token_queue = multiprocessing.Queue()
@@ -26,14 +25,13 @@ def get_tokens():
     if request.json['mtoken'] != mtoken:
         abort(401)
     new_tokens = gen_tokens()
-    print("[auth-server] generated new tokens")
     for token in new_tokens:
         token_queue.put(token)
     return {"tokens" : new_tokens}
 
 def gen_tokens():
     token_batch = []
-    for i in range(BATCH_SIZE):
+    for _ in range(BATCH_SIZE):
         token = secrets.token_hex(32)
         token_batch.append(token)
     return token_batch

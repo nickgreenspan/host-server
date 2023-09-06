@@ -25,7 +25,7 @@ def get_tokens():
 
 def gen_tokens():
     token_batch = []
-    for i in range(BATCH_SIZE):
+    for _ in range(BATCH_SIZE):
         token = secrets.token_hex(32)
         token_batch.append(token)
     return token_batch

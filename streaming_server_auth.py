@@ -11,8 +11,10 @@ from vllm_engine_streaming import StreamingVLLMEngine
 num_gpus = int(os.environ["NUM_GPUS"])
 model_path = os.environ["MODEL_PATH"]
 mtoken = os.environ['MASTER_TOKEN']
-msg_end = "$$$"
+
+MSG_END = "$$$"
 CHECK_QUEUE_SLEEP = 2
+MAX_TOKENS = 50
 
 curr_tokens = None
 engine = None
@@ -21,7 +23,7 @@ async def generate(websocket):
     global curr_tokens, engine
     token = ""
     async for message in websocket:
-        if msg_end in message:
+        if MSG_END in message:
             break
         token += message
 
@@ -33,13 +35,13 @@ async def generate(websocket):
 
     prompt = ""
     async for message in websocket:
-        if msg_end in message:
+        if MSG_END in message:
             break
         prompt += message
 
     msg_queue = Queue()
     event = Event()
-    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1, max_tokens=50)
+    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1, max_tokens=MAX_TOKENS)
     engine.prompt_queue.put((prompt, params, msg_queue, event))
     while not event.is_set():
         while msg_queue.empty() and not event.is_set():
