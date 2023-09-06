@@ -9,8 +9,8 @@ from streaming_server_auth import start_server
 
 app = Flask(__name__)
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 mtoken = os.environ['MASTER_TOKEN']
 OOBA_SERVER = '127.0.0.1:5001'
@@ -22,10 +22,11 @@ model_process.start()
 
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
-    global mtoken, curr_tokens
+    global mtoken, token_queue
     if request.json['mtoken'] != mtoken:
         abort(401)
     new_tokens = gen_tokens()
+    print("[auth-server] generated new tokens")
     for token in new_tokens:
         token_queue.put(token)
     return {"tokens" : new_tokens}

@@ -8,9 +8,6 @@ class VLLMEngine:
         self.engine = LLMEngine.from_engine_args(engine_args)
         self.wait_map = {}
 
-    def check_for_work(self):
-        return ((not self.prompt_queue.empty()) or (self.engine.has_unfinished_requests()))
-
     def run(self):
         request_id = 0
         while True:
