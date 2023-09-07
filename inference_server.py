@@ -6,6 +6,7 @@ import logging
 import os
 
 TIMEOUT = 100
+MAX_TOKENS = 50
 
 app = Flask(__name__)
 
@@ -24,11 +25,11 @@ engine_thread.start()
 def generate():
     global engine
     prompt = request.json['prompt']
-    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1, max_tokens=50)
+    params = SamplingParams(temperature=0.8, top_p=0.95, frequency_penalty=0.1, max_tokens=MAX_TOKENS)
     event = Event()
     ret_list = []
     engine.prompt_queue.put((prompt, params, event, ret_list))
-    event.wait(timeout=100)
+    event.wait(timeout=TIMEOUT)
     if event.is_set():
         out = ret_list.pop().pop()
         return {"response" : out.text, "error" : None, "num_tokens" : len(out.token_ids)}
