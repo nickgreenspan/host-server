@@ -5,7 +5,7 @@ import requests
 import logging
 import multiprocessing
 
-from streaming_server_auth import start_server
+from inference_server_streaming import start_server
 
 app = Flask(__name__)
 
