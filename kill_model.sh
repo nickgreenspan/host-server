@@ -1,19 +1,26 @@
 #!/bin/bash
 
 # Define the target command
-TARGET_CMD="python3 /src/host-server/auth_server_streaming.py"
+WATCH_CMD="python3 /src/host-server/logwatch.py"
+MODEL_CMD="python3 /src/host-server/auth_server_streaming.py"
 
 # Get the process IDs (PIDs) of processes matching the target command
-PIDS=$(ps aux | grep "$TARGET_CMD" | grep -v grep | awk '{print $2}')
+PIDS1=$(ps aux | grep "$WATCH_CMD" | grep -v grep | awk '{print $2}')
+PIDS2=$(ps aux | grep "$MODEL_CMD" | grep -v grep | awk '{print $2}')
 
 # Check if any processes were found
-while ! [ -z "$PIDS" ]
+while ! ([ -z "$PIDS1" ] && [ -z "$PIDS2" ])
 do
   # Loop through the PIDs and kill each process
-  for PID in $PIDS; do
-    echo "Killing process $PID running: $TARGET_CMD"
+  for PID in $PIDS1; do
+    echo "Killing process $PID running: $WATCH_CMD"
+    kill "$PID"
+  done
+  for PID in $PIDS2; do
+    echo "Killing process $PID running: $MODEL_CMD"
     kill "$PID"
   done
   sleep 2
-  PIDS=$(ps aux | grep "$TARGET_CMD" | grep -v grep | awk '{print $2}')
+  PIDS1=$(ps aux | grep "$WATCH_CMD" | grep -v grep | awk '{print $2}')
+  PIDS2=$(ps aux | grep "$MODEL_CMD" | grep -v grep | awk '{print $2}')
 done
