@@ -4,20 +4,7 @@ import requests
 import argparse
 import json
 
-# def extract_token_details(log_line, data):
-#     tokens_per_second_pattern = re.compile(r'Avg generation throughput: (\d+\.\d+) tokens/s')
-#     tokens_per_second_match = tokens_per_second_pattern.search(log_line)
-#     tokens_per_second = float(tokens_per_second_match.group(1)) if tokens_per_second_match else None
-#     data["tokens/s"] = tokens_per_second
-
-# #Can add pending too
-# def extract_running_details(log_line, data):
-#     running_pattern = re.compile(r'Running: (\d+) reqs')
-#     running_match = running_pattern.search(log_line)
-#     num_running = int(running_match.group(1)) if running_match else None
-#     data["num_running"] = num_running
-
-def extract(log_line, pattern_str, pattern_expression, data):
+def extract(line_json, pattern_str, pattern_expression, data):
     match = pattern_expression.search(log_line)
     if match:
         value = float(match.group(1))
@@ -26,7 +13,7 @@ def extract(log_line, pattern_str, pattern_expression, data):
     
     return False
 
-def forward_server_data(line, extract_pattern_dict, data_dict, control_server_url):
+def forward_server_data(line_json, extract_pattern_dict, data_dict, control_server_url):
     data = json.loads(data_dict)
 
     found = False
@@ -65,10 +52,11 @@ def main():
 
     print("[logwatch] ready and waiting for input")
     for line in sys.stdin:
-        if ready_pattern.search(line.strip()):
+        line_json = json.loads(line)
+        if line_json["message"] == "Connected" and line_json["target"] == "text_generation_router":
             notify_server_ready(args.data_dict, args.control_server_url)
-
-        forward_server_data(line.strip(), extract_pattern_dict, args.data_dict, args.control_server_url)
+        elif line_json["message"] == "Success" and line_json["target"] == "text_generation_router::server":
+            forward_server_data(line_json, extract_pattern_dict, args.data_dict, args.control_server_url)
 
 
 if __name__ == "__main__":
