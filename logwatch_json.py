@@ -4,8 +4,6 @@ import requests
 import argparse
 import json
 
-
-
 def format_metric_value(metric_str):
     if metric_str[-2:] == "ms":
         return (float(metric_str[:-2]) / 10.0e3)
@@ -31,22 +29,20 @@ def forward_server_data(line_metrics, metric_names, data_dict, control_server_ur
 
     if found:
         print(f'sending data to url: {control_server_url}, data: {data}')
-        # response = requests.post(control_server_url, json = data)
-        print(f"Notification sent.") #response.status_code
-
+        response = requests.post(control_server_url, json = data)
+        print(f"Notification sent. Response: {response.status_code}")
 def notify_server_ready(data_dict, control_server_url):
     data = json.loads(data_dict)
     data["loaded"] = True
 
     print(f'sending data to url: {control_server_url}, data: {data}')
-    # response = requests.post(control_server_url, json = data)
-    print(f"Notification sent.") #response.status_code
+    response = requests.post(control_server_url, json = data)
+    print(f"Notification sent. Response: {response.status_code}")
 
 
 def main():
     parser = argparse.ArgumentParser(description='Monitor a log file for a specific pattern and notify a control server when the pattern is matched.')
     parser.add_argument('--control_server_url', type=str, help='URL of the control server to notify.')
-    # parser.add_argument('--patterns', nargs='+', type=str, help='Regex patterns to search for in the log.')
     parser.add_argument('--backend', type=str)
     parser.add_argument('--data_dict', type=str)
 
@@ -54,7 +50,7 @@ def main():
 
     metric_names = ["time_per_token", "inference_time", "queue_time", "validation_time"]
 
-    print("[logwatch] ready and waiting for input")
+    print("[logwatch] ready and waiting for input\n")
     for line in sys.stdin:
         line_json = json.loads(line)
         if "message" in line_json.keys():

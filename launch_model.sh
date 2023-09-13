@@ -1,0 +1,12 @@
+#!/bin/bash
+
+MODEL_CMD="text-generation-launcher"
+MODEL_PID=$(ps aux | grep "$MODEL_CMD" | grep -v grep | awk '{print $2}')
+
+if [ -z "$MODEL_PID" ]
+then
+    text-generation-launcher --model-id meta-llama/Llama-2-70b-chat-hf --json-output --port 5001 --hostname "127.0.0.1" > /root/host-server/infer.log 2>&1 &
+    echo "launched model"
+else
+    echo "model already running"
+fi
