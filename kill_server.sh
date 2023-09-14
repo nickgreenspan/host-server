@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$SERVER_DIR"]
+if [ -z "$SERVER_DIR" ]
 then
     current_cwd=$(pwd)
     export SERVER_DIR="$current_cwd"
