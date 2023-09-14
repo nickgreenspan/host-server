@@ -1,10 +1,6 @@
 #!/bin/bash
 
-if [ -z "$SERVER_DIR" ]
-then
-    current_cwd=$(pwd)
-    export SERVER_DIR="$current_cwd"
-fi
+export SERVER_DIR="/usr/src/host-server" #want a better system, but necessary for ssh
 
 export PATH="/opt/conda/bin:$PATH"
 export MASTER_TOKEN="mtoken" #hack for this instance
