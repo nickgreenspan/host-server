@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define the target command
-WATCH_CMD="python3 /root/host-server/logwatch_json.py"
+WATCH_CMD="python3 $SERVER_DIR/logwatch_json.py"
 MODEL_CMD="text-generation-launcher"
-AUTH_CMD="/root/host-server/auth_server_hf_tgi.py" 
+AUTH_CMD="$SERVER_DIR/auth_server_hf_tgi.py" 
 
 
 # Get the process IDs (PIDs) of processes matching the target command
@@ -33,7 +33,7 @@ do
   PIDS4=$(ps aux | grep "$AUTH_CMD" | grep -v grep | awk '{print $2}')
 done
 
-if [ -e "/root/host-server/infer.log" ]
+if [ -e "$SERVER_DIR/infer.log" ]
 then
-  rm "/root/host-server/infer.log"
+  rm "$SERVER_DIR/infer.log"
 fi
