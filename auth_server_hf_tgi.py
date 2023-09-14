@@ -7,8 +7,8 @@ import time
 
 app = Flask(__name__)
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.DEBUG)
 
 mtoken = os.environ['MASTER_TOKEN']
 HF_SERVER = '127.0.0.1:5001'
