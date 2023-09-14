@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -z "$SERVER_DIR"]
+then
+    current_cwd=$(pwd)
+    export SERVER_DIR="$current_cwd"
+fi
+
 # Define the target command
 WATCH_CMD="python3 $SERVER_DIR/logwatch_json.py"
 MODEL_CMD="text-generation-launcher"

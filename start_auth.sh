@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -z "$SERVER_DIR"]
+then
+    current_cwd=$(pwd)
+    export SERVER_DIR="$current_cwd"
+fi
+
 AUTH_CMD="$SERVER_DIR/auth_server_hf_tgi.py" 
 AUTH_PID=$(ps aux | grep "$AUTH_CMD" | grep -v grep | awk '{print $2}')
 

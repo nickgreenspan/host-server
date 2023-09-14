@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -z "$SERVER_DIR"]
+then
+    current_cwd=$(pwd)
+    export SERVER_DIR="$current_cwd"
+fi
+
 MODEL_CMD="text-generation-launcher"
 MODEL_PID=$(ps aux | grep "$MODEL_CMD" | grep -v grep | awk '{print $2}')
 

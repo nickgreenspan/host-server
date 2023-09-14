@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -z "$SERVER_DIR"]
+then
+    current_cwd=$(pwd)
+    export SERVER_DIR="$current_cwd"
+fi
+
 WATCH_CMD="python3 $SERVER_DIR/logwatch_json.py"
 WATCH_PID=$(ps aux | grep "$WATCH_CMD" | grep -v grep | awk '{print $2}')
 
