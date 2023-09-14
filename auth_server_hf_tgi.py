@@ -31,8 +31,8 @@ def gen_tokens():
         token_batch.append(token)
     return token_batch
 
-def hf_tgi_wrapper(text_prompt):
-    hf_prompt = {"inputs" : text_prompt, "parameters" : {"max_new_tokens" : 200}}
+def hf_tgi_wrapper(inputs, parameters):
+    hf_prompt = {"inputs" : inputs, "parameters" : parameters}
     response = requests.post(f"http://{HF_SERVER}/generate_stream", json=hf_prompt, stream=True)
     if response.status_code == 200:
         for byte_payload in response.iter_lines():
@@ -48,7 +48,7 @@ def auth():
     elif token != mtoken:
         abort(401)
 
-    return Response(hf_tgi_wrapper(request.json['prompt']))
+    return Response(hf_tgi_wrapper(request.json['inputs'], request.json["parameters"]))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, threaded=True)
