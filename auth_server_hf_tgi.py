@@ -4,6 +4,7 @@ import secrets
 import requests
 import logging
 import time
+import sys
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ log.setLevel(logging.DEBUG)
 
 mtoken = os.environ['MASTER_TOKEN']
 HF_SERVER = '127.0.0.1:5001'
-BATCH_SIZE = 1000
+NUM_AUTH_TOKENS = 1000
 curr_tokens = set()
 
 @app.route('/tokens', methods=['GET'])
@@ -26,7 +27,7 @@ def get_tokens():
 
 def gen_tokens():
     token_batch = []
-    for _ in range(BATCH_SIZE):
+    for _ in range(NUM_AUTH_TOKENS):
         token = secrets.token_hex(32)
         token_batch.append(token)
     return token_batch
@@ -39,8 +40,26 @@ def hf_tgi_wrapper(inputs, parameters):
             yield byte_payload
             yield "\n"
 
-@app.route('/connect', methods=['POST'])
-def auth():
+@app.route('/generate', methods=['POST'])
+def generate():
+    global mtoken, curr_tokens, tgi_client
+    token = request.json['token']
+    if token in curr_tokens:
+        curr_tokens.remove(token)
+    elif token != mtoken:
+        abort(401)
+
+    hf_prompt = {"inputs" : request.json['inputs'], "parameters" : request.json["parameters"]}
+    response = requests.post(f"http://{HF_SERVER}/generate", json=hf_prompt)
+   
+    if response.status_code == 200:
+        return response.text
+    else:
+        return "Failed communication with model"
+    
+
+@app.route('/generate_stream', methods=['POST'])
+def generate_stream():
     global mtoken, curr_tokens, tgi_client
     token = request.json['token']
     if token in curr_tokens:
