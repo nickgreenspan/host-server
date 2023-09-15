@@ -4,6 +4,7 @@ import requests
 import argparse
 import json
 import time
+import os
 
 def format_metric_value(metric_str):
     if metric_str[-2:] == "ms":
@@ -25,7 +26,13 @@ class LogWatch:
         self.start_time = time.time() #this could be made more precise
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
+        self.url = self.get_url()
 
+    def get_url(self):
+        internal_port = os.environ['AUTH_PORT']
+        port_var = f"VAST_TCP_PORT_{internal_port}"
+        self.url = f"http://{os.environ['PUBLIC_IPADDR']}:{os.environ['port_var']}"
+        
     def send_data(self, data):
         print(f'sending data to url: {self.control_server_url}, data: {data}')
         response = requests.post(self.control_server_url, json = data)
@@ -37,7 +44,7 @@ class LogWatch:
         if match:
             value = int(match.group(1))
             data = json.loads(self.data_dict)
-            data["max batch capacity"] = value
+            data["max_batch_capacity"] = value
             self.send_data(data)
 
     def forward_server_data(self, line_metrics):
@@ -57,6 +64,7 @@ class LogWatch:
         data = json.loads(self.data_dict)
         data["loaded"] = True
         data["load_time"] = end_time - self.start_time
+        data["url"] = self.url
 
         self.send_data(data)
 
