@@ -27,8 +27,6 @@ class LogWatch:
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
         self.url = self.get_url()
-        print(self.url)
-        sys.stdout.flush()
 
     def get_url(self):
         internal_port = os.environ['AUTH_PORT']
@@ -78,7 +76,7 @@ def main():
 
     args = parser.parse_args()
 
-    metric_names = ["time_per_token", "inference_time", "queue_time", "validation_time"]
+    metric_names = ["time_per_token", "inference_time", "queue_time"]
     batch_pattern = re.compile(r'Setting max batch total tokens to (\d+)')
 
     watch = LogWatch(args.data_dict, args.control_server_url, metric_names, batch_pattern)
