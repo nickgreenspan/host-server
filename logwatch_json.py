@@ -27,11 +27,13 @@ class LogWatch:
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
         self.url = self.get_url()
+        print(self.url)
+        sys.stdout.flush()
 
     def get_url(self):
         internal_port = os.environ['AUTH_PORT']
         port_var = f"VAST_TCP_PORT_{internal_port}"
-        self.url = f"http://{os.environ['PUBLIC_IPADDR']}:{os.environ['port_var']}"
+        return f"http://{os.environ['PUBLIC_IPADDR']}:{os.environ[port_var]}"
         
     def send_data(self, data):
         print(f'sending data to url: {self.control_server_url}, data: {data}')
