@@ -6,6 +6,8 @@ import json
 import time
 import os
 
+from server_metrics import ServerMetrics
+
 def format_metric_value(metric_str):
     if metric_str[-2:] == "ms":
         return (float(metric_str[:-2]) / 10.0e3)
@@ -23,10 +25,11 @@ class LogWatch:
     def __init__(self, data_dict, control_server_url, metric_names, batch_pattern):
         self.data_dict = data_dict
         self.control_server_url = control_server_url
+        self.auth_server_url = self.get_url()
         self.start_time = time.time() #this could be made more precise
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
-        self.url = self.get_url()
+        self.url = self.auth_server_url
 
     def get_url(self):
         internal_port = os.environ['AUTH_PORT']
@@ -36,6 +39,10 @@ class LogWatch:
     def send_data(self, data):
         print(f'sending data to url: {self.control_server_url}, data: {data}')
         response = requests.post(self.control_server_url, json = data)
+        print(f"Notification sent. Response: {response.status_code}")
+        
+        print(f'sending data to url: {self.auth_server_url}, data: {data}')
+        response = requests.post(self.auth_server_url, json = data)
         print(f"Notification sent. Response: {response.status_code}")
         sys.stdout.flush()
 
