@@ -1,10 +1,11 @@
 #!/bin/bash
 
-export SERVER_DIR="/usr/src/host-server" #will be /home/workspace/host-server on new instances
+export SERVER_DIR="/home/workspace/host-server"
 export PATH="/opt/conda/bin:$PATH"
 
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 REPORT_ADDR MODEL_NAME AUTH_PORT"
+  #example: ./start_server.sh https://idea-catalogue-cleaner-lg.trycloudflare.com/worker_status/ meta-llama/Llama-2-70b-chat-hf 3000
   exit 1
 fi
 

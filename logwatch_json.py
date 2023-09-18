@@ -41,8 +41,9 @@ class LogWatch:
         response = requests.post(self.control_server_url, json = data)
         print(f"Notification sent. Response: {response.status_code}")
         
-        print(f'sending data to url: {self.auth_server_url}, data: {data}')
-        response = requests.post(self.auth_server_url, json = data)
+        addr = self.auth_server_url + "/report_done"
+        print(f'sending data to url: {addr}, data: {data}')
+        response = requests.post(addr, json = data)
         print(f"Notification sent. Response: {response.status_code}")
         sys.stdout.flush()
 

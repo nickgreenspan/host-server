@@ -52,7 +52,8 @@ def generate():
     elif token != mtoken:
         abort(401)
 
-    metrics.start_req()
+    print(request.headers.get('User-Agent'))
+    metrics.start_req(request.json['inputs'], request.json["parameters"])
 
     hf_prompt = {"inputs" : request.json['inputs'], "parameters" : request.json["parameters"]}
     response = requests.post(f"http://{HF_SERVER}/generate", json=hf_prompt)
@@ -72,7 +73,7 @@ def generate_stream():
     elif token != mtoken:
         abort(401)
 
-    metrics.start_req()
+    metrics.start_req(request.json['inputs'], request.json["parameters"])
 
     return Response(hf_tgi_wrapper(request.json['inputs'], request.json["parameters"]))
 
