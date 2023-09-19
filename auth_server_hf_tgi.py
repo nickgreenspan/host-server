@@ -58,7 +58,6 @@ def generate():
     elif token != mtoken:
         abort(401)
 
-    print(request.headers.get('User-Agent'))
     metrics.start_req(request.json['inputs'], request.json["parameters"])
 
     hf_prompt = {"inputs" : request.json['inputs'], "parameters" : request.json["parameters"]}

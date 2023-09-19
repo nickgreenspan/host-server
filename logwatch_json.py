@@ -10,10 +10,10 @@ from server_metrics import ServerMetrics
 
 def format_metric_value(metric_str):
     if metric_str[-2:] == "ms":
-        return (float(metric_str[:-2]) / 10.0e3)
+        return (float(metric_str[:-2]) / 1.0e3)
 
     elif ord(metric_str[-2]) == 181: #mu
-        return (float(metric_str[:-2]) / 10.0e6)
+        return (float(metric_str[:-2]) / 1.0e6)
 
     elif metric_str[-1:] == "s":
         return (float(metric_str[:-1]))
@@ -26,12 +26,13 @@ class LogWatch:
         self.id = int(id)
         self.control_server_url = control_server_url
         self.auth_server_url = self.get_url()
-        print(f"url: {self.auth_server_url}")
         self.start_time = time.time() #this could be made more precise
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
         self.url = self.auth_server_url
-        sys.stdout.flush()
+
+        self.max_batch_tokens = None
+        self.max_batch_prefill_tokens = None
 
     def get_url(self):
         internal_port = os.environ['AUTH_PORT']
@@ -46,16 +47,21 @@ class LogWatch:
         sys.stdout.flush()
 
     def read_config(self, config_info_line):
+        self.max_batch_prefill_tokens = config_info_line['max_batch_prefill_tokens']
 
-    
-    def forward_server_batch_capacity(self, batch_info_line):
+    def read_batch_capacity(self, batch_info_line):
         match = self.batch_pattern.search(batch_info_line)
         if match:
-            value = int(match.group(1))
-            data = {"id" : self.id}
-            data["max_batch_capacity"] = value
-            self.send_data(data, self.control_server_url, "/worker_status/")
-            self.send_data(data, self.auth_server_url, "/report_capacity")
+            self.max_batch_tokens = int(match.group(1))
+            return True
+        
+        return False
+            
+    def send_capacity(self):
+        data = {"id" : self.id}
+        data["max_batch_prefill_tokens"] = self.max_batch_prefill_tokens
+        data["max_batch_tokens"] = self.max_batch_tokens
+        self.send_data(data, self.auth_server_url, "/report_capacity")
 
     def forward_server_data(self, line_metrics):
         data = {"id" : self.id}
@@ -67,7 +73,7 @@ class LogWatch:
                 found = True
 
         if found:
-            self.send_data(data, self.control_server_url, "/worker_status/")
+            # self.send_data(data, self.control_server_url, "/worker_status/")
             self.send_data(data, self.auth_server_url, "/report_done")
 
     def notify_server_ready(self):
@@ -77,7 +83,7 @@ class LogWatch:
         data["load_time"] = end_time - self.start_time
         data["url"] = self.url
 
-        self.send_data(data, self.control_server_url, "/worker_status/")
+        # self.send_data(data, self.control_server_url, "/worker_status/")
 
 def main():
     parser = argparse.ArgumentParser(description='Monitor a log file for a specific pattern and notify a control server when the pattern is matched.')
@@ -96,15 +102,18 @@ def main():
         line_json = json.loads(line)
         if "fields" in line_json.keys():
             if line_json["fields"]["message"][:4] == "Args":
-                watch.read_config(json.loads(line_json["fields"]["message"][4:]))
+                tgi_args = line_json["fields"]["message"][4:]
+                tgi_args = tgi_args.replace('{ ', '{"').replace(':', '":').replace(', ', ', "').replace(' }', '}').replace('Some(', '').replace(')', '').replace(': None', ': null')
+                watch.read_config(json.loads(tgi_args))
         if "message" in line_json.keys():
             if line_json["message"] == "Connected" and line_json["target"] == "text_generation_router":
                 watch.notify_server_ready()
             elif line_json["message"] == "Success" and line_json["target"] == "text_generation_router::server":
                 watch.forward_server_data(line_json["span"])
             else:
-                watch.forward_server_batch_capacity(line_json["message"])
-
+                found = watch.read_batch_capacity(line_json["message"])
+                if found:
+                    watch.send_capacity()
 
 if __name__ == "__main__":
     main()
