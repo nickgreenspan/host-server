@@ -73,7 +73,6 @@ class LogWatch:
                 found = True
 
         if found:
-            # self.send_data(data, self.control_server_url, "/worker_status/")
             self.send_data(data, self.auth_server_url, "/report_done")
 
     def notify_server_ready(self):
@@ -83,7 +82,7 @@ class LogWatch:
         data["load_time"] = end_time - self.start_time
         data["url"] = self.url
 
-        # self.send_data(data, self.control_server_url, "/worker_status/")
+        self.send_data(data, self.control_server_url, "/worker_status/")
 
 def main():
     parser = argparse.ArgumentParser(description='Monitor a log file for a specific pattern and notify a control server when the pattern is matched.')
