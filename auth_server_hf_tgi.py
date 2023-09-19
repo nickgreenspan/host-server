@@ -5,6 +5,7 @@ import requests
 import logging
 import time
 import sys
+import argparse
 
 from server_metrics import ServerMetrics
 
@@ -13,11 +14,16 @@ app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
 
+parser = argparse.ArgumentParser(description='Flask server to serve client requests and requests from autoscaler for tokens')
+parser.add_argument('--control_server_url', type=str, help='URL of the control server to notify.')
+args = parser.parse_args()
+
 mtoken = os.environ['MASTER_TOKEN']
 HF_SERVER = '127.0.0.1:5001'
 NUM_AUTH_TOKENS = 1000
 curr_tokens = set()
-metrics = ServerMetrics()
+
+metrics = ServerMetrics(os.environ['CONTAINER_ID'], args.control_server_url)
 
 @app.route('/tokens', methods=['GET'])
 def get_tokens():
@@ -77,12 +83,18 @@ def generate_stream():
 
     return Response(hf_tgi_wrapper(request.json['inputs'], request.json["parameters"]))
 
-@app.route('/report_done', methods=['POST'])
-def report():
-    global metrics
-    data = request.json
-    metrics.report_req_done(data)
 
+@app.route('/report_capacity', methods=['POST'])
+def report_capacity():
+    global metrtics
+    metrics.report_batch_capacity(request.json)
+    return "Reported capacity"
+
+@app.route('/report_done', methods=['POST'])
+def report_done():
+    global metrics
+    log_data = request.json
+    metrics.finish_req(log_data)
     return "Updated Metrics"
 
 

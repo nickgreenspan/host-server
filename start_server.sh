@@ -16,6 +16,6 @@ echo $MODEL_NAME
 export AUTH_PORT=$3
 echo $AUTH_PORT
 
+source "$SERVER_DIR/start_auth.sh"
 source "$SERVER_DIR/start_watch.sh"
 source "$SERVER_DIR/launch_model.sh"
-source "$SERVER_DIR/start_auth.sh"
