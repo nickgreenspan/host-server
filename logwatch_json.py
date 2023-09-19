@@ -79,7 +79,7 @@ class LogWatch:
         end_time = time.time()
         data = {"id" : self.id}
         data["loaded"] = True
-        data["load_time"] = end_time - self.start_time
+        data["loadtime"] = end_time - self.start_time
         data["url"] = self.url
 
         self.send_data(data, self.control_server_url, "/worker_status/")
