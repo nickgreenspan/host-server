@@ -20,10 +20,12 @@ def format_metric_value(metric_str):
         return metric_str
 
 class LogWatch:
-    def __init__(self, id, control_server_url, metric_names, batch_pattern):
+    def __init__(self, id, control_server_url, master_token, metric_names, batch_pattern):
         self.id = int(id)
         self.control_server_url = control_server_url
-        self.auth_server_url = self.get_url()
+        self.master_token = master_token
+        # self.auth_server_url = self.get_url()
+        self.auth_server_url = "http://0.0.0.0:3000"
         self.start_time = time.time() #this could be made more precise
         self.metric_names = metric_names
         self.batch_pattern = batch_pattern
@@ -38,8 +40,10 @@ class LogWatch:
         return f"http://{os.environ['PUBLIC_IPADDR']}:{os.environ[port_var]}"
         
     def send_data(self, data, url, path):
+        data["mtoken"] = self.master_token
         full_path = url + path
         print(f'[logwatch] sending data to url: {full_path}, data: {data}')
+        sys.stdout.flush()
         response = requests.post(full_path, json = data)
         print(f"[logwatch] Notification sent. Response: {response.status_code}")
         sys.stdout.flush()
@@ -80,13 +84,13 @@ class LogWatch:
         data["loadtime"] = end_time - self.start_time
         data["url"] = self.url
 
-        self.send_data(data, self.control_server_url, "/worker_status/")
+        # self.send_data(data, self.control_server_url, "/worker_status/")
 
 def main():
     metric_names = ["time_per_token", "inference_time", "queue_time"]
     batch_pattern = re.compile(r'Setting max batch total tokens to (\d+)')
 
-    watch = LogWatch(id=os.environ['CONTAINER_ID'], control_server_url=os.environ["REPORT_ADDR"], metric_names=metric_names, batch_pattern=batch_pattern)
+    watch = LogWatch(id=os.environ['CONTAINER_ID'], control_server_url=os.environ["REPORT_ADDR"], master_token=os.environ["MASTER_TOKEN"], metric_names=metric_names, batch_pattern=batch_pattern)
 
     print("[logwatch] ready and waiting for input\n")
     for line in sys.stdin:

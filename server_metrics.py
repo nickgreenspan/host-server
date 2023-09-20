@@ -7,7 +7,7 @@ class LLMServerMetrics: #could inherit from a more generic Metrics
     def __init__(self, id, control_server_url, master_token):
         self.id = int(id)
         self.control_server_url = control_server_url
-        self.master_token = master_token
+        self.master_token = master_token #could get rid of this
         
         self.batch_capacity = None
         self.total_prompt_tokens = 0.0
@@ -35,11 +35,11 @@ class LLMServerMetrics: #could inherit from a more generic Metrics
         self.batch_capacity = json_data["max_batch_tokens"]
     
     def send_data(self, data, url, path):
-        data["mtoken"] = self.master_token
+        # data["mtoken"] = self.master_token
         full_path = url + path
         print(f'[server_metrics] sending data to url: {full_path}, data: {data}')
-        response = requests.post(full_path, json = data)
-        print(f"[server_metrics] Notification sent. Response: {response.status_code}")
+        # response = requests.post(full_path, json = data)
+        # print(f"[server_metrics] Notification sent. Response: {response.status_code}")
         sys.stdout.flush()
     
     def update_perf_loop(self): #how often should this be updated?

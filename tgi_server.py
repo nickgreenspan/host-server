@@ -45,11 +45,10 @@ def generate_stream():
 
     return backend.generate_streaming(request.json['inputs'], request.json["parameters"])
     
-
 @app.route('/report_capacity', methods=['POST'])
 def report_capacity():
     global backend
-    if not backend.check_master_token(request.json['mtoken']):
+    if ("mtoken" not in request.json.keys()) or not backend.check_master_token(request.json['mtoken']):
         abort(401)
     backend.metrics.report_batch_capacity(request.json)
     return "Reported capacity"
@@ -57,7 +56,7 @@ def report_capacity():
 @app.route('/report_done', methods=['POST'])
 def report_done():
     global backend
-    if not backend.check_master_token(request.json['mtoken']):
+    if ("mtoken" not in request.json.keys()) or not backend.check_master_token(request.json['mtoken']):
         abort(401)
     backend.metrics.finish_req(request.json)
     return "Updated Metrics"
