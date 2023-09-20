@@ -84,7 +84,7 @@ class LogWatch:
         data["loadtime"] = end_time - self.start_time
         data["url"] = self.url
 
-        # self.send_data(data, self.control_server_url, "/worker_status/")
+        self.send_data(data, self.control_server_url, "/worker_status/")
 
 def main():
     metric_names = ["time_per_token", "inference_time", "queue_time"]

@@ -38,8 +38,8 @@ class LLMServerMetrics: #could inherit from a more generic Metrics
         # data["mtoken"] = self.master_token
         full_path = url + path
         print(f'[server_metrics] sending data to url: {full_path}, data: {data}')
-        # response = requests.post(full_path, json = data)
-        # print(f"[server_metrics] Notification sent. Response: {response.status_code}")
+        response = requests.post(full_path, json = data)
+        print(f"[server_metrics] Notification sent. Response: {response.status_code}")
         sys.stdout.flush()
     
     def update_perf_loop(self): #how often should this be updated?
