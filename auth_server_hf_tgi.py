@@ -3,8 +3,6 @@ import os
 import secrets
 import requests
 import logging
-import time
-import sys
 import argparse
 
 from server_metrics import ServerMetrics

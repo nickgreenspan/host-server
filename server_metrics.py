@@ -3,10 +3,11 @@ import requests
 import time
 from threading import Thread
 
-class ServerMetrics:
-    def __init__(self, id, control_server_url):
+class LLMServerMetrics: #could inherit from a more generic Metrics
+    def __init__(self, id, control_server_url, master_token):
         self.id = int(id)
         self.control_server_url = control_server_url
+        self.master_token = master_token
         
         self.batch_capacity = None
         self.total_prompt_tokens = 0.0
@@ -19,7 +20,7 @@ class ServerMetrics:
         self.num_tokens_working = 0
         self.num_tokens_finished = 0.0 # is periodically reset every interval
         self.curr_queue_time = 0.0
-        self.curr_tokens_per_second = 0.0 #calculate a rolling average, but also keep track of current batch size, this with give "perf average"
+        self.curr_tokens_per_second = 0.0 # this is on a request by request basis, and doesn't take into account concurrent requests because of batching
 
         self.update_interval = 10.0
         self.curr_perf = 0.0
@@ -34,6 +35,7 @@ class ServerMetrics:
         self.batch_capacity = json_data["max_batch_tokens"]
     
     def send_data(self, data, url, path):
+        data["mtoken"] = self.master_token
         full_path = url + path
         print(f'[server_metrics] sending data to url: {full_path}, data: {data}')
         response = requests.post(full_path, json = data)
@@ -55,7 +57,7 @@ class ServerMetrics:
     def fill_data(self, data):
         # data["num_requests_recieved"] = self.num_requests_recieved
         # data["num_requests_finished"] = self.num_requests_finished
-        # data["num_requests_working"] = self.num_requests_working
+        data["num_requests_working"] = self.num_requests_working
         
         data["cur_capacity"] = self.num_tokens_working
         data["max_capacity"] = self.batch_capacity

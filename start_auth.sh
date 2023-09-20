@@ -6,7 +6,7 @@ then
     export SERVER_DIR="$current_cwd"
 fi
 
-AUTH_CMD="$SERVER_DIR/auth_server_hf_tgi.py" 
+AUTH_CMD="$SERVER_DIR/tgi_server.py" 
 AUTH_PID=$(ps aux | grep "$AUTH_CMD" | grep -v grep | awk '{print $2}')
 
 while ! [ -z "$AUTH_PID" ]
@@ -17,5 +17,5 @@ do
     AUTH_PID=$(ps aux | grep "$AUTH_CMD" | grep -v grep | awk '{print $2}')
 done
 
-python3 $SERVER_DIR/auth_server_hf_tgi.py --control_server_url $REPORT_ADDR > $SERVER_DIR/auth.log 2>&1 &
+python3 $SERVER_DIR/tgi_server.py > $SERVER_DIR/auth.log 2>&1 &
 echo "started auth server"

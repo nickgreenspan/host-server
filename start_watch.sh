@@ -18,5 +18,5 @@ do
 done
 
 touch $SERVER_DIR/infer.log
-tail -f -n +1 $SERVER_DIR/infer.log | python3 $SERVER_DIR/logwatch_json.py --control_server_url $REPORT_ADDR --backend 'hf_tgi' > $SERVER_DIR/watch.log 2>&1 &
+tail -f -n +1 $SERVER_DIR/infer.log | python3 $SERVER_DIR/logwatch_json.py > $SERVER_DIR/watch.log 2>&1 &
 echo "started logwatch"

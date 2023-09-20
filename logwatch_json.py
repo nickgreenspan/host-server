@@ -6,8 +6,6 @@ import json
 import time
 import os
 
-from server_metrics import ServerMetrics
-
 def format_metric_value(metric_str):
     if metric_str[-2:] == "ms":
         return (float(metric_str[:-2]) / 1.0e3)
@@ -85,16 +83,10 @@ class LogWatch:
         self.send_data(data, self.control_server_url, "/worker_status/")
 
 def main():
-    parser = argparse.ArgumentParser(description='Monitor a log file for a specific pattern and notify a control server when the pattern is matched.')
-    parser.add_argument('--control_server_url', type=str, help='URL of the control server to notify.')
-    parser.add_argument('--backend', type=str)
-
-    args = parser.parse_args()
-
     metric_names = ["time_per_token", "inference_time", "queue_time"]
     batch_pattern = re.compile(r'Setting max batch total tokens to (\d+)')
 
-    watch = LogWatch(os.environ['CONTAINER_ID'], args.control_server_url, metric_names, batch_pattern)
+    watch = LogWatch(id=os.environ['CONTAINER_ID'], control_server_url=os.environ["REPORT_ADDR"], metric_names=metric_names, batch_pattern=batch_pattern)
 
     print("[logwatch] ready and waiting for input\n")
     for line in sys.stdin:
